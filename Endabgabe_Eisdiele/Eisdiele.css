@@ -1,0 +1,12 @@
+.control-panel{
+    position: relative;
+    
+}
+.price-display {
+    position: absolute;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    font-size: 14px;
+    z-index: 1000; /* Sicherstellen, dass es über anderen Elementen liegt */
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eisdiele</title>
+    <script src="FoodData.js"></script>
+    <script src="Food.js"></script>
+    <script src="Customer.js"></script>
+    <script src="Topping.js"></script>
+    <script src="Icecream.js"></script>
+    <script src="Sauce.js"></script>
+    <script src="Table.js"></script>
+    <script src="Stool.js"></script>
+    <script src="Counter.js"></script>
+    <script src="Eisdiele.js"></script>
+</head>
+<body>
+    <canvas width="1640" height="850"></canvas> 
+    <div class="control-panel">
+        <h3>Bestellbereich</h3>
+        <label>Eissorte:
+            <select id="eissorten"></select>
+        </label>
+        <label>Menge:
+            <select id="menge"></select>
+        </label>
+        <label>Toppings:
+            <select id="toppings"></select>
+        </label>
+        <label>Saucen:
+            <select id="saucen"></select>
+        </label>
+        <button>Bestellung aufgeben</button>
+        <h3>Einnahmen: <span id="einnahmen">0.00</span> €</h3>
+        <div id="orderDisplay"></div>
+    </div>
+</body>
+</html>
