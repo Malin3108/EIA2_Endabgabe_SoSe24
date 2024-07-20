@@ -39,9 +39,6 @@ namespace Eisdiele {
 
         requestAnimationFrame(animate);
     }
-
-
-
     function createCustomer(): void {
         let minX = 10;
         let maxX = 600;
@@ -112,12 +109,13 @@ namespace Eisdiele {
             if (table.state === "free" && clickX >= table.x && clickX <= table.x + 200 && clickY >= table.y && clickY <= table.y + 100) {
                 for (let customer of customers) {
                     if (customer.state === "waiting") {
+                        displayCustomerOrder(customer.order);
                         customer.state = "coming";
                         customer.targetPositionX = table.x;
                         customer.targetPositionY = table.y;
                         customer.table = table; // Speichern Sie den Bezug zum Tisch im Kundenobjekt
                         table.state = "occupied";
-                        displayCustomerOrder(customer.order);
+                        /* displayCustomerOrder(customer.order); */
                         break;
                     }
                 }
@@ -136,7 +134,7 @@ namespace Eisdiele {
     }
 
     export function displayCustomerOrder(order: string): void {
-        const orderDisplayElement = document.getElementById("orderDisplay");
+        let orderDisplayElement = document.getElementById("orderDisplay");
         if (orderDisplayElement) {
             orderDisplayElement.textContent = order;
         }
@@ -232,7 +230,7 @@ namespace Eisdiele {
         einnahmenElement.textContent = (currentEinnahmen + total).toFixed(2);
     
         // Find the first customer with the "ordering" state
-        let orderingCustomer = customers.find(customer => customer.state === "ordering");
+        let orderingCustomer = customers.find(customer => customer.state === "ordering"); 
     
         if (orderingCustomer) {
             let iceCreamX = orderingCustomer.x;
@@ -257,7 +255,6 @@ namespace Eisdiele {
                 let sauce = new Sauce(iceCreamX + 55, iceCreamY + 55 - (selectedMenge * 10) - 30, sauceColor);
                 foods.push(sauce);
             }
-    
             // Optionally, update the customer's state to "paying"
             orderingCustomer.state = "paying";
     
@@ -312,6 +309,7 @@ namespace Eisdiele {
             console.log("No ordering customer found.");
         }
     }
+
     
 
     // Event Listener for the order button

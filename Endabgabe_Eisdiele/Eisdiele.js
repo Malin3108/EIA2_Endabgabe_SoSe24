@@ -87,12 +87,13 @@ var Eisdiele;
             if (table.state === "free" && clickX >= table.x && clickX <= table.x + 200 && clickY >= table.y && clickY <= table.y + 100) {
                 for (let customer of Eisdiele.customers) {
                     if (customer.state === "waiting") {
+                        displayCustomerOrder(customer.order);
                         customer.state = "coming";
                         customer.targetPositionX = table.x;
                         customer.targetPositionY = table.y;
                         customer.table = table; // Speichern Sie den Bezug zum Tisch im Kundenobjekt
                         table.state = "occupied";
-                        displayCustomerOrder(customer.order);
+                        /* displayCustomerOrder(customer.order); */
                         break;
                     }
                 }
@@ -109,7 +110,7 @@ var Eisdiele;
         }
     }
     function displayCustomerOrder(order) {
-        const orderDisplayElement = document.getElementById("orderDisplay");
+        let orderDisplayElement = document.getElementById("orderDisplay");
         if (orderDisplayElement) {
             orderDisplayElement.textContent = order;
         }

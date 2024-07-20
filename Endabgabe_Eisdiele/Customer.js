@@ -91,29 +91,24 @@ var Eisdiele;
         }
         updateMood() {
             const currentTime = Date.now();
-            if (this.state !== "waiting" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
+            if (this.state === "waiting") {
+                if (currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
+                    this.mood = "sad";
+                }
             }
-            if (this.state !== "ordering" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
-            }
-            if (this.state !== "paying" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
+            else {
+                this.mood = "happy"; // Wenn nicht in den Zuständen, die das Setzen von "sad" auslösen
             }
         }
         setState(newState) {
             this.state = newState;
             this.lastStateChangeTime = Date.now(); // Zeitstempel zurücksetzen
+            console.log(`Customer state changed to ${newState}`); // Debugging output
             if (newState === "ordering") {
                 this.mood = "happy"; // Stimmung auf glücklich setzen
                 this.order = this.generateRandomOrder(); // Neue zufällige Bestellung zuweisen
                 Eisdiele.displayCustomerOrder(this.order); // Bestellung anzeigen
-            }
-            if (newState === "paying") {
-                this.mood = "happy"; // Stimmung auf glücklich setzen
-            }
-            if (newState === "leaving") {
-                this.mood = "happy"; // Stimmung auf glücklich setzen
+                console.log(`Order generated: ${this.order}`); // Debugging output
             }
         }
         generateRandomOrder() {

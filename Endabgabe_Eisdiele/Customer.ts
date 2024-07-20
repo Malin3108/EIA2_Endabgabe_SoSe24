@@ -12,7 +12,7 @@ namespace Eisdiele {
         public order: string;
         public table: Table | null = null;
 
-        constructor(_x: number, _y: number, _color: string, _mood: "happy", _state: "waiting") {
+        constructor(_x: number, _y: number, _color: string, _mood: "happy" | "sad", _state: "waiting" | "coming" | "ordering" | "paying" | "leaving") {
             this.x = _x;
             this.y = _y;
             this.color = _color;
@@ -78,7 +78,7 @@ namespace Eisdiele {
                 let dx = this.targetPositionX - this.x;
                 let dy = this.targetPositionY - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
-        
+
                 if (distance > 1) {
                     this.x += dx / distance * 3;
                     this.y += dy / distance * 3;
@@ -91,37 +91,31 @@ namespace Eisdiele {
                     this.setState("waiting"); // Kunde wieder in den Wartezustand versetzen, wenn er das Canvas verlässt
                 }
             }
-        
+
             this.updateMood(); // Stimmung basierend auf Inaktivität aktualisieren
             this.draw(); // Kunde zeichnen
         }
 
         private updateMood(): void {
             const currentTime = Date.now();
-            if (this.state !== "waiting" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
-            }
-            if (this.state !== "ordering" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
-            }
-            if (this.state !== "paying" && currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
-                this.mood = "sad";
+            if (this.state === "waiting") {
+                if (currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
+                    this.mood = "sad";
+                }
+            } else {
+                this.mood = "happy"; // Wenn nicht in den Zuständen, die das Setzen von "sad" auslösen
             }
         }
 
         public setState(newState: "waiting" | "coming" | "ordering" | "paying" | "leaving"): void {
             this.state = newState;
             this.lastStateChangeTime = Date.now(); // Zeitstempel zurücksetzen
+            console.log(`Customer state changed to ${newState}`); // Debugging output
             if (newState === "ordering") {
                 this.mood = "happy"; // Stimmung auf glücklich setzen
                 this.order = this.generateRandomOrder(); // Neue zufällige Bestellung zuweisen
                 Eisdiele.displayCustomerOrder(this.order); // Bestellung anzeigen
-            }
-            if (newState === "paying") {
-                this.mood = "happy"; // Stimmung auf glücklich setzen
-            }
-            if (newState === "leaving") {
-                this.mood = "happy"; // Stimmung auf glücklich setzen
+                console.log(`Order generated: ${this.order}`); // Debugging output
             }
         }
 
