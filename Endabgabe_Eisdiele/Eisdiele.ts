@@ -8,6 +8,22 @@ namespace Eisdiele {
     export let tables: Table[] = [];
     export let foods: Food[] = [];
 
+    document.addEventListener("DOMContentLoaded", function () {
+        populateSelectOptions();
+
+        let orderButton = document.querySelector("button");
+        if (orderButton) {
+            orderButton.addEventListener("click", calculatePriceAndAddOrder);
+        }
+        // Create an element to display the order
+        let controlPanel = document.querySelector(".control-panel");
+        if (controlPanel) {
+            let orderDisplayElement = document.createElement("div");
+            orderDisplayElement.id = "orderDisplay";
+            controlPanel.appendChild(orderDisplayElement);
+        }
+    });
+
 
     function handleLoad(_event: Event): void {
         let canvas: HTMLCanvasElement | null = document.querySelector("canvas");
@@ -32,9 +48,7 @@ namespace Eisdiele {
             customers[i].move();
             customers[i].draw();
         }
-        for (let i: number = 0; i < foods.length; i++) {
-            foods[i].draw();
-        }
+        foods.forEach(food => food.draw());
         checkCustomerState(); 
 
         requestAnimationFrame(animate);
@@ -73,7 +87,7 @@ namespace Eisdiele {
 
         drawCounter();
         drawTables();
-        drawStool();
+        drawStools();
     }
 
     function drawCounter(): void {
@@ -87,18 +101,15 @@ namespace Eisdiele {
         }
     }
 
-    function drawStool(): void {
-        let stool: Stool = new Stool(1150, 240, "lightblue");
-        stool.draw();
+    function drawStools(): void {
+        let stoolPositions = [
+            { x: 1150, y: 240 },
+            { x: 100, y: 240 },
+            { x: 800, y: 240 },
+            { x: 450, y: 240 }
+        ];
 
-        let stool2: Stool = new Stool(100, 240, "lightblue");
-        stool2.draw();
-
-        let stool3: Stool = new Stool(800, 240, "lightblue");
-        stool3.draw();
-
-        let stool5: Stool = new Stool(450, 240, "lightblue");
-        stool5.draw();
+        stoolPositions.forEach(pos => new Stool(pos.x, pos.y, "lightblue").draw());
     }
 
     function tableClicked(event: PointerEvent): void {
@@ -115,7 +126,7 @@ namespace Eisdiele {
                         customer.targetPositionY = table.y;
                         customer.table = table; // Speichern Sie den Bezug zum Tisch im Kundenobjekt
                         table.state = "occupied";
-                        /* displayCustomerOrder(customer.order); */
+                        
                         break;
                     }
                 }
@@ -140,61 +151,28 @@ namespace Eisdiele {
         }
     }
 
-    function populateSelectOptions() {
-        let eissortenSelect = document.getElementById("eissorten") as HTMLSelectElement;
-        let mengeSelect = document.getElementById("menge") as HTMLSelectElement;
-        let toppingsSelect = document.getElementById("toppings") as HTMLSelectElement;
-        let saucenSelect = document.getElementById("saucen") as HTMLSelectElement;
-
-        // Eissorten befüllen
-        for (let eissorte of data.eissorten) {
-            let option = document.createElement("option");
-            option.text = eissorte.name;
-            option.value = eissorte.name;
-            eissortenSelect.add(option);
-        }
-
-        // Mengen befüllen
-        for (let i = 1; i <= 5; i++) {
-            let option = document.createElement("option");
-            option.text = i.toString();
-            option.value = i.toString();
-            mengeSelect.add(option);
-        }
-
-        // Toppings befüllen
-        for (let topping of data.toppings) {
-            let option = document.createElement("option");
-            option.text = topping.name;
-            option.value = topping.name;
-            toppingsSelect.add(option);
-        }
-
-        // Saucen befüllen
-        for (let sauce of data.saucen) {
-            let option = document.createElement("option");
-            option.text = sauce.name;
-            option.value = sauce.name;
-            saucenSelect.add(option);
-        }
+    function populateSelectOptions(): void {
+        let selectElements = {
+            eissorten: document.getElementById("eissorten") as HTMLSelectElement,
+            menge: document.getElementById("menge") as HTMLSelectElement,
+            toppings: document.getElementById("toppings") as HTMLSelectElement,
+            saucen: document.getElementById("saucen") as HTMLSelectElement
+        };
+    
+        populateOptions(selectElements.eissorten, data.eissorten.map(item => item.name));
+        populateOptions(selectElements.menge, Array.from({ length: 5 }, (_, i) => (i + 1).toString()));
+        populateOptions(selectElements.toppings, data.toppings.map(item => item.name));
+        populateOptions(selectElements.saucen, data.saucen.map(item => item.name));
     }
-
-
-    let iceCreamColors: { [key: string]: string } = {
-        'Vanille': 'yellow',
-        'Schokolade': 'darkbrown',
-        'Erdbeere': 'red'
-    };
-
-    let toppingColors: { [key: string]: string } = {
-        'Kokosstreusel': 'white',
-        'Schokostreusel': 'black'
-    };
-
-    let sauceColors: { [key: string]: string } = {
-        'Schokoladensauce': 'brown',
-        'Erdbeersauce': 'red'
-    };
+    
+    function populateOptions(selectElement: HTMLSelectElement, options: string[]): void {
+        options.forEach(optionText => {
+            let option = document.createElement("option");
+            option.text = optionText;
+            option.value = optionText;
+            selectElement.add(option);
+        });
+    }
 
     export function calculatePriceAndAddOrder() {
         let eissortenSelect = document.getElementById("eissorten") as HTMLSelectElement;
@@ -208,6 +186,17 @@ namespace Eisdiele {
         let selectedSauce = saucenSelect.value;
     
         let total = 0;
+    
+        // Preis der Eissorte (einheitlich)
+        for (let eissorte of data.eissorten) {
+            if (eissorte.name === selectedEissorte) {
+                total += eissorte.price;
+                break;
+            }
+        }
+    
+        // Preis pro Kugel
+        total += data.iceCreamPricePerScoop * selectedMenge;
     
         // Preis des ausgewählten Toppings
         for (let topping of data.toppings) {
@@ -230,7 +219,7 @@ namespace Eisdiele {
         einnahmenElement.textContent = (currentEinnahmen + total).toFixed(2);
     
         // Find the first customer with the "ordering" state
-        let orderingCustomer = customers.find(customer => customer.state === "ordering"); 
+        let orderingCustomer = customers.find(customer => customer.state === "ordering");
     
         if (orderingCustomer) {
             let iceCreamX = orderingCustomer.x;
@@ -254,6 +243,12 @@ namespace Eisdiele {
             if (selectedSauce) {
                 let sauce = new Sauce(iceCreamX + 55, iceCreamY + 55 - (selectedMenge * 10) - 30, sauceColor);
                 foods.push(sauce);
+
+                let currentOrder = `Order:\n${selectedMenge}x ${selectedEissorte}\n${selectedTopping}\n${selectedSauce}`;
+                if (orderingCustomer.actualOrder !== currentOrder) {
+                    orderingCustomer.color = 'red'; // Change color to red
+                }
+    
             }
             // Optionally, update the customer's state to "paying"
             orderingCustomer.state = "paying";
@@ -294,8 +289,7 @@ namespace Eisdiele {
     
                 // Move the customer to the right out of the canvas
                 orderingCustomer.state = "leaving";
-
-                
+    
                 let interval = setInterval(() => {
                     orderingCustomer.x += 5; // Move customer to the right
                     if (orderingCustomer.x > crc2.canvas.width) {
@@ -309,24 +303,4 @@ namespace Eisdiele {
             console.log("No ordering customer found.");
         }
     }
-
-    
-
-    // Event Listener for the order button
-    document.addEventListener("DOMContentLoaded", function () {
-        populateSelectOptions();
-
-        let orderButton = document.querySelector("button");
-        if (orderButton) {
-            orderButton.addEventListener("click", calculatePriceAndAddOrder);
-        }
-        // Create an element to display the order
-        let controlPanel = document.querySelector(".control-panel");
-        if (controlPanel) {
-            let orderDisplayElement = document.createElement("div");
-            orderDisplayElement.id = "orderDisplay";
-            controlPanel.appendChild(orderDisplayElement);
-        }
-    });
-
 }

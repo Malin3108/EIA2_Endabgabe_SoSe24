@@ -1,7 +1,7 @@
 namespace Eisdiele {
     export class Icecream extends Food {
-        waffleColor: string;
-        scoops: number;
+        public waffleColor: string;
+        public scoops: number;
 
         constructor(_x: number, _y: number, _color: string, _waffleColor: string, _scoops: number) {
             super(_x, _y, _color);
@@ -9,7 +9,7 @@ namespace Eisdiele {
             this.scoops = _scoops;
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.save();
             crc2.translate(this.x, this.y);
             crc2.scale(0.5, 0.5);

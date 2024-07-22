@@ -1,8 +1,8 @@
 namespace Eisdiele {
     export class Table {
-        x: number;
-        y: number;
-        color: string
+        public x: number;
+        public y: number;
+        public color: string
         public state: "free" | "occupied" = "free";
         
 
@@ -14,7 +14,7 @@ namespace Eisdiele {
             
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.fillStyle = this.color ;
             crc2.fillRect(this.x , this.y , 200, 100);
         }

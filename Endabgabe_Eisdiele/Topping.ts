@@ -1,7 +1,7 @@
 namespace Eisdiele {
     export class Topping extends Food {
-        count: number;
-        streuselPositions: { x: number, y: number, width: number, height: number }[];
+        public count: number;
+        public streuselPositions: { x: number, y: number, width: number, height: number }[];
 
         constructor(_x: number, _y: number, _count: number, _color: string) {
             super(_x, _y, _color);
@@ -10,7 +10,7 @@ namespace Eisdiele {
         }
 
         private generateStreuselPositions() {
-            const positions = [];
+            let positions = [];
             for (let i = 0; i < this.count; i++) {
                 // Vergrößere den Bereich, in dem die Streusel generiert werden
                 const offsetX = Math.random() * 80 - 40; // Bisher: Math.random() * 40 - 20;
@@ -22,7 +22,7 @@ namespace Eisdiele {
             return positions;
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.save();
             crc2.translate(this.x, this.y);
             // crc2.scale(0.5, 0.5); // Skalierung ist derzeit deaktiviert

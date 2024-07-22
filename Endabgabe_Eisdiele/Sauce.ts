@@ -4,7 +4,7 @@ namespace Eisdiele {
             super(_x, _y, _color);
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.fillStyle = this.color;
 
             crc2.beginPath();

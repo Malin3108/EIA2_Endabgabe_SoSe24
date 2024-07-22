@@ -10,7 +10,7 @@ var Eisdiele;
             this.streuselPositions = this.generateStreuselPositions();
         }
         generateStreuselPositions() {
-            const positions = [];
+            let positions = [];
             for (let i = 0; i < this.count; i++) {
                 // Vergrößere den Bereich, in dem die Streusel generiert werden
                 const offsetX = Math.random() * 80 - 40; // Bisher: Math.random() * 40 - 20;

@@ -13,6 +13,7 @@ var Eisdiele;
         moodChangeDelay = 30000; // 30 Sekunden
         order;
         table = null;
+        actualOrder = null; // Bestellung des Kunden
         constructor(_x, _y, _color, _mood, _state) {
             this.x = _x;
             this.y = _y;
@@ -21,6 +22,7 @@ var Eisdiele;
             this.state = _state;
             this.lastStateChangeTime = Date.now();
             this.order = "";
+            this.actualOrder = null;
         }
         draw() {
             Eisdiele.crc2.save();
@@ -73,8 +75,8 @@ var Eisdiele;
                 let dy = this.targetPositionY - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance > 1) {
-                    this.x += dx / distance * 3;
-                    this.y += dy / distance * 3;
+                    this.x += dx / distance * 2;
+                    this.y += dy / distance * 2;
                 }
                 else {
                     this.setState("ordering"); // Zustand auf "ordering" setzen
@@ -90,7 +92,7 @@ var Eisdiele;
             this.draw(); // Kunde zeichnen
         }
         updateMood() {
-            const currentTime = Date.now();
+            let currentTime = Date.now();
             if (this.state === "waiting") {
                 if (currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
                     this.mood = "sad";
@@ -107,16 +109,17 @@ var Eisdiele;
             if (newState === "ordering") {
                 this.mood = "happy"; // Stimmung auf glücklich setzen
                 this.order = this.generateRandomOrder(); // Neue zufällige Bestellung zuweisen
+                this.actualOrder = this.order; // Tatsächliche Bestellung setzen
                 Eisdiele.displayCustomerOrder(this.order); // Bestellung anzeigen
                 console.log(`Order generated: ${this.order}`); // Debugging output
             }
         }
         generateRandomOrder() {
-            const randomIndex = (arr) => Math.floor(Math.random() * arr.length);
-            const randomEissorte = Eisdiele.data.eissorten[randomIndex(Eisdiele.data.eissorten)].name;
-            const randomMenge = Math.floor(Math.random() * 5) + 1;
-            const randomTopping = Eisdiele.data.toppings[randomIndex(Eisdiele.data.toppings)].name;
-            const randomSauce = Eisdiele.data.saucen[randomIndex(Eisdiele.data.saucen)].name;
+            let randomIndex = (arr) => Math.floor(Math.random() * arr.length);
+            let randomEissorte = Eisdiele.data.eissorten[randomIndex(Eisdiele.data.eissorten)].name;
+            let randomMenge = Math.floor(Math.random() * 5) + 1;
+            let randomTopping = Eisdiele.data.toppings[randomIndex(Eisdiele.data.toppings)].name;
+            let randomSauce = Eisdiele.data.saucen[randomIndex(Eisdiele.data.saucen)].name;
             return `Order:\n${randomMenge}x ${randomEissorte}\n${randomTopping}\n${randomSauce}`;
         }
     }

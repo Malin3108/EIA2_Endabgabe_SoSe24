@@ -11,6 +11,7 @@ namespace Eisdiele {
         private readonly moodChangeDelay: number = 30000; // 30 Sekunden
         public order: string;
         public table: Table | null = null;
+        public actualOrder: string | null = null; // Bestellung des Kunden
 
         constructor(_x: number, _y: number, _color: string, _mood: "happy" | "sad", _state: "waiting" | "coming" | "ordering" | "paying" | "leaving") {
             this.x = _x;
@@ -20,9 +21,10 @@ namespace Eisdiele {
             this.state = _state;
             this.lastStateChangeTime = Date.now();
             this.order = "";
+            this.actualOrder = null;
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.save();
             crc2.translate(this.x, this.y);
             crc2.scale(0.5, 0.5);
@@ -73,15 +75,15 @@ namespace Eisdiele {
             }
         }
 
-        move(): void {
+        public move(): void {
             if (this.state === "coming" && this.targetPositionX !== undefined && this.targetPositionY !== undefined) {
                 let dx = this.targetPositionX - this.x;
                 let dy = this.targetPositionY - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance > 1) {
-                    this.x += dx / distance * 3;
-                    this.y += dy / distance * 3;
+                    this.x += dx / distance * 2;
+                    this.y += dy / distance * 2;
                 } else {
                     this.setState("ordering"); // Zustand auf "ordering" setzen
                 }
@@ -97,7 +99,7 @@ namespace Eisdiele {
         }
 
         private updateMood(): void {
-            const currentTime = Date.now();
+            let currentTime = Date.now();
             if (this.state === "waiting") {
                 if (currentTime - this.lastStateChangeTime > this.moodChangeDelay) {
                     this.mood = "sad";
@@ -114,18 +116,19 @@ namespace Eisdiele {
             if (newState === "ordering") {
                 this.mood = "happy"; // Stimmung auf glücklich setzen
                 this.order = this.generateRandomOrder(); // Neue zufällige Bestellung zuweisen
+                this.actualOrder = this.order; // Tatsächliche Bestellung setzen
                 Eisdiele.displayCustomerOrder(this.order); // Bestellung anzeigen
                 console.log(`Order generated: ${this.order}`); // Debugging output
             }
         }
 
         private generateRandomOrder(): string {
-            const randomIndex = (arr: any[]) => Math.floor(Math.random() * arr.length);
+            let randomIndex = (arr: any[]) => Math.floor(Math.random() * arr.length);
 
-            const randomEissorte = data.eissorten[randomIndex(data.eissorten)].name;
-            const randomMenge = Math.floor(Math.random() * 5) + 1;
-            const randomTopping = data.toppings[randomIndex(data.toppings)].name;
-            const randomSauce = data.saucen[randomIndex(data.saucen)].name;
+            let randomEissorte = data.eissorten[randomIndex(data.eissorten)].name;
+            let randomMenge = Math.floor(Math.random() * 5) + 1;
+            let randomTopping = data.toppings[randomIndex(data.toppings)].name;
+            let randomSauce = data.saucen[randomIndex(data.saucen)].name;
 
             return `Order:\n${randomMenge}x ${randomEissorte}\n${randomTopping}\n${randomSauce}`;
         }

@@ -1,8 +1,8 @@
 namespace Eisdiele {
     export class Counter {
-        x: number;
-        y: number;
-        color: string
+        public x: number;
+        public y: number;
+        public color: string
 
 
         constructor(_x: number, _y: number, _color: string) {
@@ -12,7 +12,7 @@ namespace Eisdiele {
 
         }
 
-        draw(): void {
+        public draw(): void {
             crc2.fillStyle = this.color ;
             crc2.fillRect(this.x, this.y, 950, 250);
 

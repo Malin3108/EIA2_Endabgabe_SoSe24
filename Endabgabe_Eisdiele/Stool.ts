@@ -1,8 +1,8 @@
 namespace Eisdiele {
     export class Stool {
-        x: number;
-        y: number;
-        color: string
+        public x: number;
+        public y: number;
+        public color: string
         
         
 
@@ -13,7 +13,7 @@ namespace Eisdiele {
             
         }
 
-        draw(): void{
+        public draw(): void{
             crc2.save();
             crc2.beginPath();
             crc2.translate(this.x, this.y);

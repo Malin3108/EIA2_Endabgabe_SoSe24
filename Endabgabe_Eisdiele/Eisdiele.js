@@ -7,6 +7,20 @@ var Eisdiele;
     Eisdiele.customerRadius = 90 * 0.5;
     Eisdiele.tables = [];
     Eisdiele.foods = [];
+    document.addEventListener("DOMContentLoaded", function () {
+        populateSelectOptions();
+        let orderButton = document.querySelector("button");
+        if (orderButton) {
+            orderButton.addEventListener("click", calculatePriceAndAddOrder);
+        }
+        // Create an element to display the order
+        let controlPanel = document.querySelector(".control-panel");
+        if (controlPanel) {
+            let orderDisplayElement = document.createElement("div");
+            orderDisplayElement.id = "orderDisplay";
+            controlPanel.appendChild(orderDisplayElement);
+        }
+    });
     function handleLoad(_event) {
         let canvas = document.querySelector("canvas");
         if (!canvas)
@@ -24,9 +38,7 @@ var Eisdiele;
             Eisdiele.customers[i].move();
             Eisdiele.customers[i].draw();
         }
-        for (let i = 0; i < Eisdiele.foods.length; i++) {
-            Eisdiele.foods[i].draw();
-        }
+        Eisdiele.foods.forEach(food => food.draw());
         checkCustomerState();
         requestAnimationFrame(animate);
     }
@@ -59,7 +71,7 @@ var Eisdiele;
         Eisdiele.crc2.fillRect(0, 0, Eisdiele.crc2.canvas.width, Eisdiele.crc2.canvas.height);
         drawCounter();
         drawTables();
-        drawStool();
+        drawStools();
     }
     function drawCounter() {
         let counter = new Eisdiele.Counter(800, 500, "darkblue");
@@ -70,15 +82,14 @@ var Eisdiele;
             table.draw();
         }
     }
-    function drawStool() {
-        let stool = new Eisdiele.Stool(1150, 240, "lightblue");
-        stool.draw();
-        let stool2 = new Eisdiele.Stool(100, 240, "lightblue");
-        stool2.draw();
-        let stool3 = new Eisdiele.Stool(800, 240, "lightblue");
-        stool3.draw();
-        let stool5 = new Eisdiele.Stool(450, 240, "lightblue");
-        stool5.draw();
+    function drawStools() {
+        let stoolPositions = [
+            { x: 1150, y: 240 },
+            { x: 100, y: 240 },
+            { x: 800, y: 240 },
+            { x: 450, y: 240 }
+        ];
+        stoolPositions.forEach(pos => new Eisdiele.Stool(pos.x, pos.y, "lightblue").draw());
     }
     function tableClicked(event) {
         let clickX = event.clientX;
@@ -93,7 +104,6 @@ var Eisdiele;
                         customer.targetPositionY = table.y;
                         customer.table = table; // Speichern Sie den Bezug zum Tisch im Kundenobjekt
                         table.state = "occupied";
-                        /* displayCustomerOrder(customer.order); */
                         break;
                     }
                 }
@@ -117,52 +127,25 @@ var Eisdiele;
     }
     Eisdiele.displayCustomerOrder = displayCustomerOrder;
     function populateSelectOptions() {
-        let eissortenSelect = document.getElementById("eissorten");
-        let mengeSelect = document.getElementById("menge");
-        let toppingsSelect = document.getElementById("toppings");
-        let saucenSelect = document.getElementById("saucen");
-        // Eissorten befüllen
-        for (let eissorte of Eisdiele.data.eissorten) {
-            let option = document.createElement("option");
-            option.text = eissorte.name;
-            option.value = eissorte.name;
-            eissortenSelect.add(option);
-        }
-        // Mengen befüllen
-        for (let i = 1; i <= 5; i++) {
-            let option = document.createElement("option");
-            option.text = i.toString();
-            option.value = i.toString();
-            mengeSelect.add(option);
-        }
-        // Toppings befüllen
-        for (let topping of Eisdiele.data.toppings) {
-            let option = document.createElement("option");
-            option.text = topping.name;
-            option.value = topping.name;
-            toppingsSelect.add(option);
-        }
-        // Saucen befüllen
-        for (let sauce of Eisdiele.data.saucen) {
-            let option = document.createElement("option");
-            option.text = sauce.name;
-            option.value = sauce.name;
-            saucenSelect.add(option);
-        }
+        let selectElements = {
+            eissorten: document.getElementById("eissorten"),
+            menge: document.getElementById("menge"),
+            toppings: document.getElementById("toppings"),
+            saucen: document.getElementById("saucen")
+        };
+        populateOptions(selectElements.eissorten, Eisdiele.data.eissorten.map(item => item.name));
+        populateOptions(selectElements.menge, Array.from({ length: 5 }, (_, i) => (i + 1).toString()));
+        populateOptions(selectElements.toppings, Eisdiele.data.toppings.map(item => item.name));
+        populateOptions(selectElements.saucen, Eisdiele.data.saucen.map(item => item.name));
     }
-    let iceCreamColors = {
-        'Vanille': 'yellow',
-        'Schokolade': 'darkbrown',
-        'Erdbeere': 'red'
-    };
-    let toppingColors = {
-        'Kokosstreusel': 'white',
-        'Schokostreusel': 'black'
-    };
-    let sauceColors = {
-        'Schokoladensauce': 'brown',
-        'Erdbeersauce': 'red'
-    };
+    function populateOptions(selectElement, options) {
+        options.forEach(optionText => {
+            let option = document.createElement("option");
+            option.text = optionText;
+            option.value = optionText;
+            selectElement.add(option);
+        });
+    }
     function calculatePriceAndAddOrder() {
         let eissortenSelect = document.getElementById("eissorten");
         let mengeSelect = document.getElementById("menge");
@@ -173,6 +156,15 @@ var Eisdiele;
         let selectedTopping = toppingsSelect.value;
         let selectedSauce = saucenSelect.value;
         let total = 0;
+        // Preis der Eissorte (einheitlich)
+        for (let eissorte of Eisdiele.data.eissorten) {
+            if (eissorte.name === selectedEissorte) {
+                total += eissorte.price;
+                break;
+            }
+        }
+        // Preis pro Kugel
+        total += Eisdiele.data.iceCreamPricePerScoop * selectedMenge;
         // Preis des ausgewählten Toppings
         for (let topping of Eisdiele.data.toppings) {
             if (topping.name === selectedTopping) {
@@ -195,9 +187,9 @@ var Eisdiele;
         if (orderingCustomer) {
             let iceCreamX = orderingCustomer.x;
             let iceCreamY = orderingCustomer.y;
-            let iceCreamColor = iceCreamColors[selectedEissorte];
-            let toppingColor = toppingColors[selectedTopping];
-            let sauceColor = sauceColors[selectedSauce];
+            let iceCreamColor = Eisdiele.iceCreamColors[selectedEissorte];
+            let toppingColor = Eisdiele.toppingColors[selectedTopping];
+            let sauceColor = Eisdiele.sauceColors[selectedSauce];
             // Create and add the ice cream
             let icecream = new Eisdiele.Icecream(iceCreamX, iceCreamY, iceCreamColor, 'brown', selectedMenge);
             Eisdiele.foods.push(icecream);
@@ -210,6 +202,10 @@ var Eisdiele;
             if (selectedSauce) {
                 let sauce = new Eisdiele.Sauce(iceCreamX + 55, iceCreamY + 55 - (selectedMenge * 10) - 30, sauceColor);
                 Eisdiele.foods.push(sauce);
+                let currentOrder = `Order:\n${selectedMenge}x ${selectedEissorte}\n${selectedTopping}\n${selectedSauce}`;
+                if (orderingCustomer.actualOrder !== currentOrder) {
+                    orderingCustomer.color = 'red'; // Change color to red
+                }
             }
             // Optionally, update the customer's state to "paying"
             orderingCustomer.state = "paying";
@@ -259,20 +255,5 @@ var Eisdiele;
         }
     }
     Eisdiele.calculatePriceAndAddOrder = calculatePriceAndAddOrder;
-    // Event Listener for the order button
-    document.addEventListener("DOMContentLoaded", function () {
-        populateSelectOptions();
-        let orderButton = document.querySelector("button");
-        if (orderButton) {
-            orderButton.addEventListener("click", calculatePriceAndAddOrder);
-        }
-        // Create an element to display the order
-        let controlPanel = document.querySelector(".control-panel");
-        if (controlPanel) {
-            let orderDisplayElement = document.createElement("div");
-            orderDisplayElement.id = "orderDisplay";
-            controlPanel.appendChild(orderDisplayElement);
-        }
-    });
 })(Eisdiele || (Eisdiele = {}));
 //# sourceMappingURL=Eisdiele.js.map
