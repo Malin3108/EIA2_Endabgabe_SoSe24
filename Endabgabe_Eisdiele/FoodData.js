@@ -12,7 +12,7 @@ var Eisdiele;
             { name: 'Schokostreusel', price: 0.2 }
         ],
         saucen: [
-            { name: 'Schokoladensauce', price: 0.3 },
+            { name: 'Schokoladensoße', price: 0.3 },
             { name: 'Erdbeersauce', price: 0.3 }
         ],
         iceCreamPricePerScoop: 1
@@ -27,7 +27,7 @@ var Eisdiele;
         'Schokostreusel': 'black'
     };
     Eisdiele.sauceColors = {
-        'Schokoladensauce': 'brown',
+        'Schokoladensoße': 'brown',
         'Erdbeersauce': 'red'
     };
 })(Eisdiele || (Eisdiele = {}));
